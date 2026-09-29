@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>RoriSummit - 3D Dental Visualisation</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f7f7;--card:#fffc;--tx:#111827;--mut:#6b6b6b;--ln:#e2e2e2;--ac:#111111;--acbg:#e6e6e6;--vp:#f4f5f7;--vp2:#d6dae0;--dk:#0a0a0a}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 13px/1.4 Inter,system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+.app{display:grid;gap:12px;padding:10px;max-width:1500px;margin:auto;grid-template-columns:200px 1fr 310px;grid-template-areas:"side head panel" "side vp panel" "side th th" "side info info"}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:14px}
+.side{grid-area:side;display:flex;flex-direction:column;padding:16px 10px}
+.brand{font-size:18px;font-weight:600;padding:0 8px 2px}.brand+small{padding:0 8px 18px;color:var(--mut);display:block;font-size:10px}
+.nav{padding:10px 12px;border-radius:9px;text-align:left;width:100%;margin-bottom:4px;color:var(--mut)}
+.nav.on{background:var(--acbg);color:var(--ac);font-weight:500}
+.user{margin-top:auto;padding:10px 8px;display:flex;gap:10px;align-items:center;font-size:11px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--ln);display:grid;place-items:center;font-weight:600}
+.head{grid-area:head;display:flex;align-items:center;gap:12px;padding:10px 16px;flex-wrap:wrap}
+.head b{font-size:14px}.m{color:var(--mut)}
+.head .sp{margin-left:auto;display:flex;gap:16px;align-items:center}
+select{background:var(--card);color:var(--tx);border:1px solid var(--ln);border-radius:20px;padding:7px 12px;font:inherit}
+.sw{display:flex;gap:8px;align-items:center;cursor:pointer}
+.sw i{width:34px;height:20px;border-radius:10px;background:#999;position:relative;transition:.2s}
+.sw i:after{content:"";position:absolute;left:3px;top:3px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on i{background:var(--ac)}.sw.on i:after{left:17px}
+.vp{grid-area:vp;position:relative;height:clamp(380px,62vh,660px);overflow:hidden;background:radial-gradient(ellipse at 50% 40%,var(--vp),var(--vp2));transition:background .3s}
+.vp.dark{background:radial-gradient(ellipse at 50% 40%,#f4f5f7,#d6dae0)}
+canvas{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.tools{position:absolute;left:14px;top:14px;display:flex;flex-direction:column;padding:6px;gap:2px;z-index:2}
+.tools button{width:52px;padding:10px 0;border-radius:9px;font-size:10px;color:var(--mut)}
+.tools button.on{background:var(--acbg);color:var(--ac);font-weight:500}
+.tools svg{display:block;margin:0 auto 4px}
+.ov{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#lb{position:absolute;padding:8px 12px;border-radius:9px;background:#fffe;color:#111827;box-shadow:0 4px 16px #0002;pointer-events:none;font-size:11px;white-space:nowrap}
+#lb b{font-size:12px;display:block}
+.hint{position:absolute;left:16px;bottom:12px;color:var(--mut);font-size:11px}
+.panel{grid-area:panel;padding:16px}
+.ph{display:flex;gap:12px;align-items:center}
+.tile{width:74px;height:74px;border-radius:14px;background:linear-gradient(145deg,var(--acbg),var(--ln));display:grid;place-items:center;font-size:24px;font-weight:600;color:var(--ac);flex:none}
+.ph .tile{width:42px;height:42px;font-size:15px;border-radius:12px}
+.ph b{font-size:15px}
+.chip{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:12px;background:var(--ln);font-size:11px}
+.chip.p{background:#fde3e1;color:#b42318}
+.tabs{display:flex;gap:22px;border-bottom:1px solid var(--ln);margin:16px 0 14px}
+.tabs button{padding:8px 0;color:var(--mut)}
+.tabs button.on{color:var(--ac);border-bottom:2px solid var(--ac);font-weight:500}
+.row{display:flex;gap:14px}
+h4{margin:16px 0 6px;font-size:13px}
+.rv{width:100%;display:flex;align-items:center;gap:10px;padding:10px;border-radius:9px;text-align:left;margin-bottom:6px}
+.rv.on{background:var(--acbg)}
+.rv:before{content:"";width:26px;height:26px;border-radius:8px;border:1px solid var(--ln);background:var(--card);flex:none}
+.rv:after{content:">";margin-left:auto;color:var(--mut)}
+table{width:100%;border-collapse:collapse}td{padding:7px 0;border-bottom:1px solid var(--ln)}td:last-child{text-align:right}
+.th{grid-area:th;display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.thb{padding:4px;border:2px solid transparent;border-radius:12px;text-align:left;background:var(--card)}
+.thb.on{border-color:var(--ac)}
+.thb div{height:110px;border-radius:9px;background:#e6e6e6 center/cover}
+.thb.x div{background-color:#f0f0f0}
+.thb span{display:block;padding:8px 6px 4px;font-size:11px}
+.info{grid-area:info;display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:12px}
+.info>div{padding:20px}
+.info h3{margin:0 0 6px;font-size:18px;font-weight:600}
+.pts{display:flex;gap:26px;margin-top:22px}.pts b{display:block}.pts small{color:var(--mut)}
+.steps{display:flex;gap:14px;margin-top:14px}.steps div{flex:1}
+.dot{height:70px;border-radius:10px;background:var(--ln);margin-bottom:8px}
+.cta{background:linear-gradient(135deg,var(--card),var(--acbg))}
+.go{margin-top:18px;background:#111;color:#fff;padding:12px 22px;border-radius:24px;font-weight:500}
+@media(max-width:1000px){.app{grid-template-columns:1fr;grid-template-areas:"head" "vp" "panel" "th" "info" "side"}.side{flex-direction:row;flex-wrap:wrap;align-items:center}.user{margin:0 0 0 auto}.brand+small{display:none}.nav{width:auto}.info{grid-template-columns:1fr}.th{grid-template-columns:repeat(3,1fr)}.tools button{width:44px}}
+.back-link{position:fixed;right:16px;bottom:16px;z-index:10;background:#111;color:#fff;border-radius:30px;padding:10px 16px;text-decoration:none;box-shadow:0 8px 24px #0002;font-size:12px}@media(max-width:700px){.app{grid-template-areas:"side" "head" "vp" "panel" "th" "info";padding:8px;gap:8px}.side{gap:4px;padding:10px}.brand{width:100%}.nav{min-height:42px;padding:9px}.user{display:none}.head .sp{margin-left:0;width:100%;justify-content:space-between}.vp{height:clamp(360px,65vh,540px)}.th{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.thb div{height:90px}.tools{left:8px;top:8px;padding:3px}.tools button{min-height:43px}.hint{max-width:65%;left:8px;font-size:10px}.back-link{bottom:8px;right:8px}.tabs{gap:16px}}
+
+.tour-help{position:fixed;left:16px;bottom:16px;z-index:11;background:#fff;color:#111;border:1px solid #aaa;border-radius:30px;padding:10px 16px;box-shadow:0 8px 24px #0002;font-size:12px;font-weight:600}.tour-overlay[hidden]{display:none}.tour-overlay{position:fixed;inset:0;z-index:30;background:#000a;display:grid;place-items:center;padding:18px}.tour-card{width:min(100%,470px);background:#fff;color:#111;border:1px solid #ccc;border-radius:20px;padding:clamp(22px,5vw,34px);box-shadow:0 24px 80px #0005}.tour-top{display:flex;align-items:center;justify-content:space-between;gap:14px}.tour-kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#666}.tour-close{width:38px;height:38px;border:1px solid #ddd;border-radius:50%;font-size:22px;line-height:1}.tour-card h2{font-size:clamp(24px,6vw,34px);line-height:1.08;margin:28px 0 12px}.tour-card p{font-size:14px;line-height:1.6;color:#555;min-height:70px}.tour-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:26px}.tour-actions button{min-height:44px;padding:10px 18px;border-radius:24px;border:1px solid #111;font-weight:600}.tour-actions .primary{background:#111;color:#fff}.tour-actions button:disabled{opacity:.35}.tour-dots{font-size:12px;color:#777}@media(max-width:700px){.tour-help{left:8px;bottom:8px}}
+</style></head><body>
+<p class="concept-disclaimer" style="max-width:1500px;margin:10px auto 0;padding:0 12px;color:#666;font-size:12px">Interactive concept with fictional patient and clinic details. Illustrative views are not a diagnosis or treatment recommendation.</p><button class="tour-help" id="tour-help" type="button" aria-haspopup="dialog">How to use this</button>
+<div class="tour-overlay" id="tour-overlay" hidden><div class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title" aria-describedby="tour-copy"><div class="tour-top"><span class="tour-kicker">Dental dashboard / quick guide</span><button class="tour-close" id="tour-close" type="button" aria-label="Close tutorial">×</button></div><h2 id="tour-title"></h2><p id="tour-copy"></p><div class="tour-actions"><button id="tour-prev" type="button">Back</button><span class="tour-dots" id="tour-progress"></span><button class="primary" id="tour-next" type="button">Next</button></div></div></div>
+<div class="app">
+<aside class="side card"><div class="brand">RoriSummit</div><small>3D Dental Visualisation</small>
+<button class="nav on" data-n="model">Patient View</button><button class="nav" data-n="treatment">Treatment Plan</button><button class="nav" data-n="notes">Notes</button><button class="nav" data-n="export">Share / Export</button>
+<div class="user"><div class="av">JD</div><div><b>Demo clinician</b><br><span class="m">Example dental clinic</span></div></div></aside>
+<header class="head card"><div class="av">S</div><div><b>Example patient</b><br><span class="m">Sample record · no patient data</span></div>
+<div class="sp"><select id="jaw"><option value="both">Both Jaws</option><option value="up">Upper Jaw</option><option value="lo">Lower Jaw</option></select><div class="sw" id="d4"><i></i>4D View</div></div></header>
+<section class="vp card" id="vp"><canvas id="c"></canvas><svg class="ov" id="ln"><line stroke="#777" stroke-width="1.2"/></svg><div id="lb"></div>
+<div class="tools card" id="tools">
+<button data-m="rotate" class="on"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M16 10a6 6 0 1 1-2-4.5M16 3v3h-3"/></svg>Rotate</button>
+<button data-m="pan"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2v16M2 10h16M10 2l-2 2M10 2l2 2M10 18l-2-2M10 18l2-2M2 10l2-2M2 10l2 2M18 10l-2-2M18 10l-2 2"/></svg>Pan</button>
+<button data-m="zoom"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="6"/><path d="M13.5 13.5L18 18M9 6.5v5M6.5 9h5"/></svg>Zoom</button>
+<button data-m="mark"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10" cy="10" r="5"/><path d="M10 2v4M10 14v4M2 10h4M14 10h4"/></svg>Mark Pain</button>
+<button id="reset"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 10a6 6 0 1 0 2-4.5M4 3v3h3"/></svg>Reset</button></div>
+<div class="hint">Drag to rotate &nbsp;&bull;&nbsp; Scroll to zoom &nbsp;&bull;&nbsp; Click a tooth to select</div></section>
+<aside class="panel card"><div class="ph"><div class="tile" id="tn"></div><div><b id="tt"></b><br><span class="m" id="ts"></span><br><span class="chip" id="chip"></span></div></div>
+<div class="tabs" id="tabs"><button class="on" data-t="ov">Overview</button><button data-t="dt">Details</button><button data-t="tr">Treatment</button></div>
+<div id="tc"></div><h4>Related Views</h4><div id="rvs"></div></aside>
+<div class="th" id="th"></div>
+<div class="info">
+<div class="card"><h3>Patient Experience</h3><span class="m">Explore how a visual model could support a conversation about symptoms and treatment options.</span><div class="pts"><div><b>Point to an area</b><small>on the example model</small></div><div><b>Compare</b><small>illustrative views</small></div><div><b>Discuss</b><small>questions with a clinician</small></div></div></div>
+<div class="card"><h3>Treatment Plan <span class="m" style="font-size:11px;font-weight:400">(Example)</span></h3><div class="steps"><div><div class="dot" style="background:#cfcfcf"></div><b>1. Diagnosis</b><br><span class="m">Identify the issue (e.g. cavity, fracture)</span></div><div><div class="dot" style="background:#8a8a8a"></div><b>2. Treatment</b><br><span class="m">Plan the procedure (e.g. filling, crown, implant)</span></div><div><div class="dot"></div><b>3. Result</b><br><span class="m">See the expected outcome</span></div></div></div>
+<div class="card cta"><h3>Turn complex information into clear conversations.</h3><span class="m">A working interface concept for visual explanations. Clinical use would require professional review and validation.</span><br><button class="go" id="go">Get Started</button></div>
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+try{
+const T=THREE,$=id=>document.getElementById(id),vp=$('vp'),cv=$('c');
+const R=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.localClippingEnabled=true;R.outputEncoding=T.sRGBEncoding;
+const S=new T.Scene(),cam=new T.PerspectiveCamera(32,1,.1,400);
+S.add(new T.HemisphereLight(0xffffff,0x9aa6b8,.85));
+let l=new T.DirectionalLight(0xffffff,.9);l.position.set(6,9,10);S.add(l);
+l=new T.DirectionalLight(0xbcd0ff,.5);l.position.set(-8,2,-6);S.add(l);
+const plane=new T.Plane(new T.Vector3(1,0,0),0);
+const grid=new T.GridHelper(100,100,0xcccccc,0xdddddd);grid.position.y=-6.5;S.add(grid);
+const tongue=new T.Mesh(new T.SphereGeometry(1,32,16),new T.MeshStandardMaterial({color:0x777777,roughness:.8}));
+tongue.scale.set(2.5,.7,2.7);tongue.position.set(0,-3.6,-.4);S.add(tongue);
+
+// tooth geometry
+function toothGeo(k,w,d,h){
+ const g=new T.SphereGeometry(1,30,22),p=g.attributes.position;
+ for(let i=0;i<p.count;i++){
+  const x=p.getX(i),y=p.getY(i),z=p.getZ(i),u=(y+1)/2;
+  let X=x*w/2,Z=z*d/2,Y=-(1-y)/2*h;
+  if(k=='i'){Z*=.5+.5*u;X*=.85+.15*u;Y=Math.max(Y,-h*.93)}
+  if(k=='c'){const s=.3+.7*Math.pow(u,.8);X*=s;Z*=s*1.1;if(y<-.8)Y-=.12*h}
+  if(k=='p'){const b=(.5+.5*Math.cos(x*5))*.7;if(y<-.5)Y-=.14*h*b*(-y-.5)*2;X*=.9+.1*u}
+  if(k=='m'){const b=(.5+.5*Math.cos(x*6))*(.5+.5*Math.cos(z*6));if(y<-.4)Y-=.2*h*b*(-y-.4)/.6;X*=.92+.08*u;Z*=.92+.08*u}
+  p.setXYZ(i,X,Y,Z);
+ }
+ g.computeVertexNormals();return g;
+}
+const TY=[['i',.85,.7,1.6,'Central Incisor'],['i',.7,.65,1.5,'Lateral Incisor'],['c',.8,.85,1.7,'Canine'],['p',.75,.9,1.35,'First Premolar'],['p',.75,.9,1.3,'Second Premolar'],['m',1.1,1.15,1.15,'First Molar'],['m',1.05,1.1,1.1,'Second Molar']];
+const A=4,B=3.6;
+function arch(u,s){return new T.Vector3(s*A*Math.sin(u),0,B*Math.cos(u))}
+const cum=[0];for(let i=1;i<=400;i++){const u=i/400*1.9;cum.push(cum[i-1]+arch(u,1).distanceTo(arch((i-1)/400*1.9,1)))}
+function uAt(s){let i=cum.findIndex(c=>c>=s);return (i<0?400:i)/400*1.9}
+const teeth=[],byId={},gums=[],meshes=[];
+function mkTooth(){return new T.MeshPhysicalMaterial({color:0xf2f2f2,roughness:.32,clearcoat:.6,clearcoatRoughness:.3})}
+const gmat=()=>{const m=new T.MeshStandardMaterial({color:0xb0b0b0,roughness:.5,transparent:true,opacity:.5,depthWrite:false});gums.push(m);return m};
+function tube(y,r,o){const pts=[];for(let u=-1.9;u<=1.9;u+=.1)pts.push(new T.Vector3(A*1.02*Math.sin(u),y,B*1.02*Math.cos(u)));
+ const m=new T.Mesh(new T.TubeGeometry(new T.CatmullRomCurve3(pts),140,r,14),gmat());m.material.opacity=o;m.material.userData.o=o;return m}
+function jaw(up){
+ const G=new T.Group();
+ [1,-1].forEach(s=>{let pos=0;TY.forEach((t,i)=>{
+  const wd=t[1]+.1,u=uAt(pos+wd/2),p=arch(u,s),tg=new T.Vector3(s*A*Math.cos(u),0,-B*Math.sin(u));
+  pos+=wd;
+  const grp=new T.Group(),mat=mkTooth(),m=new T.Mesh(toothGeo(t[0],t[1],t[2],t[3]),mat);
+  const r=new T.Mesh(new T.ConeGeometry(t[1]*.3,t[3]*1.1,10),mat);r.rotation.x=Math.PI;r.position.y=t[3]*.55;
+  grp.add(m,r);grp.position.copy(p);grp.rotation.y=Math.atan2(-tg.z,tg.x);
+  const q=up?(s>0?1:2):(s>0?4:3),id=q*10+i+1;m.userData.id=id;meshes.push(m);
+  const nm=(up?'Upper ':'Lower ')+(s>0?'Right ':'Left ')+t[4];
+  const o={id,grp,mat,h:t[3],label:nm,type:t[4],jaw:up?'up':'lo'};teeth.push(o);byId[id]=o;G.add(grp)})});
+ G.add(tube(.35,.66,.5),tube(1.3,1.15,.1));return G;
+}
+const up=new T.Group(),upG=jaw(true),hinge=new T.Vector3(0,-1.6,-4.4);
+up.position.copy(hinge);upG.position.copy(hinge).multiplyScalar(-1);up.add(upG);
+const lo=new T.Group(),loG=jaw(false);loG.rotation.z=Math.PI;loG.scale.set(.94,1,.94);lo.position.y=-3;lo.add(loG);
+S.add(up,lo);
+const jawsOf={up,lo};
+
+// state
+let view='model',mode='rotate',sel=16,open=.5,chew=false,tab='ov',labelId=16;
+const P=new Set([16]);
+const V=[['model','3D Model'],['xray','X-Ray Overlay'],['section','Cross Section'],['treatment','Treatment Plan'],['after','After Treatment']];
+let az=.5,el=.25,dist=16,tgt=new T.Vector3(0,-1.6,0),g={az,el,dist,tgt:tgt.clone()};
+function wp(t){t.grp.updateWorldMatrix(true,false);return t.grp.localToWorld(new T.Vector3(0,-t.h*.6,0))}
+function camFor(v){const b={az:.5,el:.25,dist:16,tgt:new T.Vector3(0,-1.6,0)};
+ if(v=='section')b.az=-1.25;
+ if(v=='treatment'||v=='after'){S.updateMatrixWorld(true);b.tgt=wp(byId[16]);b.dist=8;b.az=1.1}
+ return b}
+function setGoal(v,now){g=camFor(v);if(now){az=g.az;el=g.el;dist=g.dist;tgt.copy(g.tgt)}}
+function sprite(){const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),gr=x.createRadialGradient(64,64,4,64,64,62);
+ gr.addColorStop(0,'rgba(255,40,40,.95)');gr.addColorStop(.4,'rgba(255,50,50,.45)');gr.addColorStop(1,'rgba(255,50,50,0)');x.fillStyle=gr;x.fillRect(0,0,128,128);
+ const s=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false}));s.scale.set(2.3,2.3,1);s.renderOrder=9;S.add(s);return s}
+const spr={};
+
+function paint(){
+ const x=view=='xray';
+ teeth.forEach(t=>{const m=t.mat,p=P.has(t.id)&&view!='after',s=t.id==sel;
+  m.color.set(x?0x8f9aa6:0xf7f6f2);m.transparent=false;m.opacity=1;
+  m.side=view=='section'?T.DoubleSide:T.FrontSide;m.clippingPlanes=view=='section'?[plane]:[];
+  let e=0;if(view=='treatment'&&s)e=0x9a9a9a;else if(p)e=x?0xcc2222:0x8a1010;else if(x)e=0x2a323c;else if(s)e=0x3a3a3a;
+  m.emissive.set(e);m.emissiveIntensity=view=='treatment'&&s?.8:.55;m.needsUpdate=true});
+ gums.forEach(m=>{m.opacity=x?m.userData.o*.3:m.userData.o;m.clippingPlanes=view=='section'?[plane]:[];m.side=view=='section'?T.DoubleSide:T.FrontSide;m.needsUpdate=true});
+ vp.classList.toggle('dark',x);grid.visible=!x;tongue.visible=!x&&view!='section';
+ const j=$('jaw').value;up.visible=j!='lo';lo.visible=j!='up';
+}
+function panel(){
+ const t=byId[sel],pn=P.has(sel)&&view!='after';
+ $('tn').textContent=sel;$('tt').textContent='Tooth '+sel;$('ts').textContent=t.label;
+ const c=$('chip');c.textContent=pn?'Pain reported':view=='after'&&P.has(sel)?'Treated':'No issues';c.className='chip'+(pn?' p':'');
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t==tab));
+ let h='';
+ if(tab=='ov')h=`<div class="row"><div class="tile">${sel}</div><div><b>Tooth ${sel}</b><br><span class="m">${t.label}</span><div class="m" style="margin-top:10px">Pain Location</div>${pn?'Occlusal surface (possible caries)':'None recorded'}</div></div><h4>Notes</h4><span class="m">${pn?'Patient reports sharp pain when biting and sensitivity to cold.':'No notes for this tooth.'}</span>`;
+ if(tab=='dt')h=`<table><tr><td class="m">Type</td><td>${t.type}</td></tr><tr><td class="m">Jaw</td><td>${t.jaw=='up'?'Upper':'Lower'}</td></tr><tr><td class="m">Quadrant</td><td>${Math.floor(sel/10)}</td></tr><tr><td class="m">Status</td><td>${pn?'Pain reported':'Healthy'}</td></tr><tr><td class="m">Severity</td><td>${pn?'Moderate':'None'}</td></tr></table>`;
+ if(tab=='tr')h=pn||P.has(sel)?`<b>Suggested plan (example)</b><ol style="padding-left:18px"><li>X-ray and bite test to confirm caries</li><li>Remove decay, place composite filling or crown</li><li>Review sensitivity after two weeks</li></ol>`:'<span class="m">No treatment needed for this tooth.</span>';
+ $('tc').innerHTML=h;
+ $('rvs').innerHTML=V.filter((v,i)=>i<4).map(v=>`<button class="rv${view==v[0]?' on':''}" data-v="${v[0]}">${v[0]=='treatment'?'Treatment Animation':v[1]}</button>`).join('');
+ document.querySelectorAll('.thb').forEach(b=>b.classList.toggle('on',b.dataset.v==view));
+ document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('on',b.dataset.n==view||(b.dataset.n=='model'&&view!='treatment')));
+}
+function setView(v){view=v;setGoal(v);paint();panel()}
+function refresh(){paint();panel()}
+
+// UI wiring
+$('th').innerHTML=V.map(v=>`<button class="thb${v[0]=='xray'?' x':''}" data-v="${v[0]}"><div id="t_${v[0]}"></div><span>${v[1]}</span></button>`).join('');
+document.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)setView(b.dataset.v)});
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b){tab=b.dataset.t;panel()}};
+$('tools').onclick=e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.id=='reset'){setGoal(view);return}
+ mode=b.dataset.m;document.querySelectorAll('#tools [data-m]').forEach(x=>x.classList.toggle('on',x==b))};
+$('jaw').onchange=paint;$('d4').onclick=()=>{chew=!chew;$('d4').classList.toggle('on',chew)};
+$('go').onclick=()=>scrollTo({top:0,behavior:'smooth'});
+document.querySelectorAll('.nav').forEach(b=>b.onclick=()=>{const n=b.dataset.n;
+ if(n=='export'){const a=document.createElement('a');R.render(S,cam);a.href=cv.toDataURL('image/png');a.download='rorisummit-view.png';a.click();return}
+ if(n=='notes'){tab='ov';panel();return}
+ if(n=='treatment')tab='tr';setView(n)});
+
+// orbit + picking
+let dn=null;const ray=new T.Raycaster(),nd=new T.Vector2();
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);dn={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,sh:e.shiftKey}};
+cv.onpointermove=e=>{if(!dn)return;const dx=e.clientX-dn.x,dy=e.clientY-dn.y;dn.x=e.clientX;dn.y=e.clientY;
+ const m=dn.sh?'pan':mode;g=null;
+ if(m=='pan'){cam.updateMatrix();const r=new T.Vector3().setFromMatrixColumn(cam.matrix,0),u=new T.Vector3().setFromMatrixColumn(cam.matrix,1),k=dist*.0018;tgt.addScaledVector(r,-dx*k).addScaledVector(u,dy*k)}
+ else if(m=='zoom')dist=Math.min(80,Math.max(5,dist*(1+dy*.006)));
+ else{az-=dx*.007;el=Math.min(1.4,Math.max(-1.2,el+dy*.006))}};
+cv.onpointerup=e=>{if(!dn)return;const mv=Math.hypot(e.clientX-dn.sx,e.clientY-dn.sy);dn=null;if(mv>4)return;
+ const r=cv.getBoundingClientRect();nd.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);
+ ray.setFromCamera(nd,cam);const h=ray.intersectObjects(meshes.filter(m=>m.parent.parent.parent.visible))[0];if(!h)return;
+ const id=h.object.userData.id;sel=id;
+ if(mode=='mark'&&view!='after'){if(P.has(id)){P.delete(id)}else{P.add(id);labelId=id}}
+ refresh()};
+cv.addEventListener('wheel',e=>{e.preventDefault();g=null;dist=Math.min(80,Math.max(5,dist*(1+e.deltaY*.001)))},{passive:false});
+new ResizeObserver(()=>{const w=vp.clientWidth,h=vp.clientHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}).observe(vp);
+
+const lb=$('lb'),ln=$('ln').firstElementChild;
+function frame(t){
+ requestAnimationFrame(frame);
+ open=chew?.28+.28*(.5+.5*Math.sin(t/1000*1.7)):open+(.5-open)*.05*(dn?0:0);
+ if(!chew)open=.5;
+ up.rotation.x=-open;
+ if(g){az+=(g.az-az)*.09;el+=(g.el-el)*.09;dist+=(g.dist-dist)*.09;tgt.lerp(g.tgt,.09)}
+ cam.position.set(tgt.x+dist*Math.cos(el)*Math.sin(az),tgt.y+dist*Math.sin(el),tgt.z+dist*Math.cos(el)*Math.cos(az));cam.lookAt(tgt);
+ S.updateMatrixWorld(true);
+ P.forEach(id=>{if(!spr[id])spr[id]=sprite()});
+ for(const id in spr){const t=byId[id],s=spr[id];s.visible=P.has(+id)&&view!='after'&&view!='treatment'&&t.grp.parent.parent.visible;if(s.visible)s.position.copy(wp(t))}
+ let L=P.has(labelId)?labelId:[...P][0];
+ const ok=L&&view!='after'&&view!='treatment'&&byId[L].grp.parent.parent.visible;
+ lb.style.display=ok?'block':'none';ln.style.display=ok?'block':'none';
+ if(ok){const w=vp.clientWidth,h=vp.clientHeight,v=wp(byId[L]).project(cam),px=(v.x*.5+.5)*w,py=(-v.y*.5+.5)*h;
+  lb.innerHTML=`<b>Pain Area</b><span style="color:#6b7280">Tooth ${L} (${byId[L].label})</span>`;
+  const lx=Math.max(70,Math.min(px+40,w-lb.offsetWidth-10)),ly=Math.max(10,py-90);
+  lb.style.left=lx+'px';lb.style.top=ly+'px';
+  ln.setAttribute('x1',px);ln.setAttribute('y1',py);ln.setAttribute('x2',lx+30);ln.setAttribute('y2',ly+lb.offsetHeight)}
+ R.render(S,cam);
+}
+// init + thumbnails from the real scene
+panel();paint();
+requestAnimationFrame(()=>{
+ const w=vp.clientWidth||900,h=vp.clientHeight||500;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
+ const sv={az,el,dist,t:tgt.clone()};
+ V.forEach(v=>{view=v[0];paint();setGoal(view,true);cam.position.set(tgt.x+dist*Math.cos(el)*Math.sin(az),tgt.y+dist*Math.sin(el),tgt.z+dist*Math.cos(el)*Math.cos(az));cam.lookAt(tgt);
+  S.updateMatrixWorld(true);P.forEach(id=>{if(!spr[id])spr[id]=sprite();spr[id].visible=v[0]!='after'&&v[0]!='treatment';spr[id].position.copy(wp(byId[id]))});
+  R.render(S,cam);$('t_'+v[0]).style.backgroundImage=`url(${cv.toDataURL('image/png')})`});
+ view='model';paint();panel();setGoal('model',true);requestAnimationFrame(frame);
+});
+}catch(error){console.warn("Using compatible dental viewer",error);const fallback=document.createElement("script");fallback.src="dental-fallback.js";document.body.appendChild(fallback)}
+</script><script>
+(()=>{const steps=[['Move the model','Drag on the teeth to rotate the view. On a phone, use one finger to drag. Scroll or use the Zoom tool to move closer.'],['Select and explore','Tap or click a tooth to see its example details. Use the jaw menu, toolbar and view cards to switch what you see.'],['Keep the context clear','All patient details and findings here are fictional. Use the model as an interface demonstration, not a diagnosis or treatment plan.']];let index=0,previous=null;const overlay=document.getElementById('tour-overlay'),help=document.getElementById('tour-help'),prev=document.getElementById('tour-prev'),next=document.getElementById('tour-next'),close=document.getElementById('tour-close');function render(){document.getElementById('tour-title').textContent=steps[index][0];document.getElementById('tour-copy').textContent=steps[index][1];document.getElementById('tour-progress').textContent=`${index+1} / ${steps.length}`;prev.disabled=index===0;next.textContent=index===steps.length-1?'Start exploring':'Next'}function open(){previous=document.activeElement;index=0;render();overlay.hidden=false;document.body.style.overflow='hidden';close.focus()}function dismiss(){overlay.hidden=true;document.body.style.overflow='';try{localStorage.setItem('dental-tour-seen','1')}catch{};(previous||help).focus()}help.addEventListener('click',open);close.addEventListener('click',dismiss);prev.addEventListener('click',()=>{index=Math.max(0,index-1);render()});next.addEventListener('click',()=>{if(index===steps.length-1)dismiss();else{index++;render()}});overlay.addEventListener('click',e=>{if(e.target===overlay)dismiss()});document.addEventListener('keydown',e=>{if(overlay.hidden)return;if(e.key==='Escape')dismiss();if(e.key==='Tab'){const target=e.shiftKey?next:close;if((e.shiftKey&&document.activeElement===close)||(!e.shiftKey&&document.activeElement===next)){e.preventDefault();target.focus()}}});try{if(localStorage.getItem('dental-tour-seen')!=='1')open()}catch{open()}})();
+</script><a class="back-link" href="index.html#dental">Back to RoriSummit</a></body></html>
